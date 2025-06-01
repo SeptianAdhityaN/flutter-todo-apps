@@ -43,7 +43,7 @@ class DBHelper {
     await db.insert(
       _tableName,
       task,
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      conflictAlgorithm: ConflictAlgorithm.ignore,
     );
   }
 

@@ -9,6 +9,14 @@ class AppProvider extends ChangeNotifier {
   int get currentIndex => _currentIndex;
   List<TaskModel> get tasks => _tasks;
 
+  TaskModel? getTaskById(String id) {
+    try {
+      return _tasks.firstWhere((t) => t.id == id);
+    } catch (e) {
+      return null;
+    }
+  }
+
   void setPage(int index) {
     _currentIndex = index;
     notifyListeners();
@@ -38,23 +46,31 @@ class AppProvider extends ChangeNotifier {
   // ✅ Tambah tugas
   Future<void> tambahTugas(TaskModel task) async {
     await DBHelper.insertTask(task.toMap());
-    await loadTasksFromDB();
+    _tasks.add(task);
+    notifyListeners();
   }
 
   // ✅ Hapus tugas
   Future<void> hapusTugas(TaskModel task) async {
     if (task.id.isNotEmpty) {
       await DBHelper.deleteTask(task.id);
-      await loadTasksFromDB();
+      _tasks.removeWhere((t) => t.id == task.id);
+      notifyListeners();
     }
   }
 
   // ✅ Toggle status selesai/belum
   Future<void> toggleTugas(TaskModel task) async {
     if (task.id.isNotEmpty) {
-      task.isCompleted = !task.isCompleted;
-      await DBHelper.updateTask(task.id, task.toMap());
-      await loadTasksFromDB();
+      final updatedTask = task.copyWith(isCompleted: !task.isCompleted);
+      await DBHelper.updateTask(task.id, updatedTask.toMap());
+
+      // Cari task di list dan update secara lokal
+      final index = _tasks.indexWhere((t) => t.id == task.id);
+      if (index != -1) {
+        _tasks[index] = updatedTask;
+        notifyListeners(); // Hanya panggil notifyListeners sekali
+      }
     }
   }
 
@@ -66,8 +82,8 @@ class AppProvider extends ChangeNotifier {
     // Mencari index task yang sesuai dalam list dan memperbarui task yang ada
     final index = _tasks.indexWhere((task) => task.id == id);
     if (index != -1) {
-      _tasks[index] = updatedTask;  // Update task di list
-      notifyListeners();  // Memberi tahu bahwa ada perubahan data
+      _tasks[index] = updatedTask; // Update task di list
+      notifyListeners(); // Memberi tahu bahwa ada perubahan data
     }
   }
 

@@ -17,6 +17,28 @@ class TaskModel {
     required this.isCompleted,
   });
 
+  /// Untuk menyalin task dengan properti yang bisa diubah sebagian
+  TaskModel copyWith({
+    String? id,
+    String? category,
+    String? title,
+    String? description,
+    String? startDate,
+    String? endDate,
+    bool? isCompleted,
+  }) {
+    return TaskModel(
+      id: id ?? this.id,
+      category: category ?? this.category,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      isCompleted: isCompleted ?? this.isCompleted,
+    );
+  }
+
+  /// Konversi ke Map untuk simpan ke database
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -29,9 +51,10 @@ class TaskModel {
     };
   }
 
+  /// Factory method dari Map (hasil dari database) ke TaskModel
   factory TaskModel.fromMap(Map<String, dynamic> map) {
     return TaskModel(
-      id: map['id'],  // Mengambil id sebagai String
+      id: map['id'],
       category: map['category'],
       title: map['title'],
       description: map['description'],
@@ -39,5 +62,11 @@ class TaskModel {
       endDate: map['endDate'],
       isCompleted: map['isCompleted'] == 1,
     );
+  }
+
+  /// Untuk debugging: print instance-nya
+  @override
+  String toString() {
+    return 'TaskModel(id: $id, title: $title, completed: $isCompleted)';
   }
 }

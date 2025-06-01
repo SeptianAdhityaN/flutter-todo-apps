@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 import '../models/task_model.dart';
 import '../providers/app_provider.dart';
 
@@ -43,7 +44,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
         _startDate != null &&
         _endDate != null) {
       final newTask = TaskModel(
-        id: '',
+        id: Uuid().v4(),
         category: _selectedCategory,
         title: _titleController.text,
         description: _descController.text,

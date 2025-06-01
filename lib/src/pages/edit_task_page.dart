@@ -59,14 +59,27 @@ void _submit() async {
   if (_formKey.currentState!.validate() &&
       _startDate != null &&
       _endDate != null) {
-    final updatedTask = TaskModel(
-      id: widget.task.id, // ID dari widget.task yang sudah ada
-      category: _selectedCategory,
-      title: _titleController.text,
-      description: _descController.text,
-      startDate: _startDate!.toIso8601String(),
-      endDate: _endDate!.toIso8601String(),
-      isCompleted: widget.task.isCompleted,
+    // Cek apakah ada perubahan
+    final hasChanged =
+        _selectedCategory != widget.task.category ||
+        _titleController.text != widget.task.title ||
+        _descController.text != widget.task.description ||
+        _startDate!.toIso8601String() != widget.task.startDate ||
+        _endDate!.toIso8601String() != widget.task.endDate;
+
+    if (!hasChanged) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tidak ada perubahan yang disimpan.')),
+      );
+      return;
+    }
+
+    final updatedTask = widget.task.copyWith(
+      category: _selectedCategory != widget.task.category ? _selectedCategory : null,
+      title: _titleController.text != widget.task.title ? _titleController.text : null,
+      description: _descController.text != widget.task.description ? _descController.text : null,
+      startDate: _startDate!.toIso8601String() != widget.task.startDate ? _startDate!.toIso8601String() : null,
+      endDate: _endDate!.toIso8601String() != widget.task.endDate ? _endDate!.toIso8601String() : null,
     );
 
     try {
@@ -74,7 +87,6 @@ void _submit() async {
       await provider.updateTugas(updatedTask.id, updatedTask);
 
       if (mounted) {
-        // Navigate to the TaskDetailPage directly after update
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
